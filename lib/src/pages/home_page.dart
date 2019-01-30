@@ -251,6 +251,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             foodName: "Cafe De Perks",
             vote: 4.5,
             foodTime: "15-30 min",
+            status: "CLOSE",
+            statusColor: Colors.pinkAccent,
           ),
           CardMoreWidget(
             image: AppImages.image1[0],
@@ -258,6 +260,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             foodName: "Cafe De Perks",
             vote: 4.5,
             foodTime: "15-30 min",
+            status: "OPEN",
+            statusColor: Colors.green,
           ),
         ],
       ),

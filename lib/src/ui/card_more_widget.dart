@@ -10,9 +10,17 @@ class CardMoreWidget extends StatefulWidget {
   final String foodName;
   final String foodDetail;
   final String foodTime;
+  final String status;
+  final Color statusColor;
   final double vote;
   CardMoreWidget(
-      {this.image, this.foodDetail, this.foodName, this.vote, this.foodTime});
+      {this.image,
+      this.foodDetail,
+      this.foodName,
+      this.vote,
+      this.foodTime,
+      this.status,
+      this.statusColor});
 
   @override
   CardMoreWidgetState createState() {
@@ -202,7 +210,7 @@ class CardMoreWidgetState extends State<CardMoreWidget> {
                         child: Container(
                           padding: EdgeInsets.only(top: 5, left: 12),
                           decoration: BoxDecoration(
-                            color: Colors.pinkAccent,
+                            color: widget.statusColor,
                             borderRadius:
                                 BorderRadius.only(topLeft: Radius.circular(10)),
                           ),
@@ -210,7 +218,7 @@ class CardMoreWidgetState extends State<CardMoreWidget> {
                           width: 60,
                           child: Transform.rotate(
                             child: Text(
-                              "CLOSE",
+                              widget.status,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
