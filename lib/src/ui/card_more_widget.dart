@@ -1,23 +1,26 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:foodapp/src/constant/colors.dart';
+import 'package:foodapp/src/ui/card_more_shape.dart';
 
-class CardListWidget extends StatefulWidget {
+class CardMoreWidget extends StatefulWidget {
   final String image;
   final String foodName;
   final String foodDetail;
   final String foodTime;
   final double vote;
-  CardListWidget(
+  CardMoreWidget(
       {this.image, this.foodDetail, this.foodName, this.vote, this.foodTime});
 
   @override
-  CardListWidgetState createState() {
-    return new CardListWidgetState();
+  CardMoreWidgetState createState() {
+    return new CardMoreWidgetState();
   }
 }
 
-class CardListWidgetState extends State<CardListWidget> {
+class CardMoreWidgetState extends State<CardMoreWidget> {
   bool _isSolid = false;
 
   void _toggleHeart() {
@@ -32,6 +35,7 @@ class CardListWidgetState extends State<CardListWidget> {
       padding: EdgeInsets.only(
         bottom: 20,
         left: 20,
+        right: 20,
       ),
       child: Material(
         elevation: 4,
@@ -40,7 +44,8 @@ class CardListWidgetState extends State<CardListWidget> {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Container(
-          width: MediaQuery.of(context).size.width - 80,
+          width: MediaQuery.of(context).size.width,
+          height: 250,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -186,6 +191,33 @@ class CardListWidgetState extends State<CardListWidget> {
                               ),
                             )
                           ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      child: ClipPath(
+                        clipper: CardMoreClipper(),
+                        child: Container(
+                          padding: EdgeInsets.only(top: 5, left: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.pinkAccent,
+                            borderRadius:
+                                BorderRadius.only(topLeft: Radius.circular(10)),
+                          ),
+                          height: 60,
+                          width: 60,
+                          child: Transform.rotate(
+                            child: Text(
+                              "CLOSE",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "KoHo"),
+                            ),
+                            angle: pi * 1.75,
+                          ),
                         ),
                       ),
                     )
