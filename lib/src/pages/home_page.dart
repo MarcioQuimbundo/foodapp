@@ -7,6 +7,7 @@ import 'package:foodapp/src/constant/images.dart';
 import 'package:foodapp/src/ui/card_more_widget.dart';
 import 'package:foodapp/src/ui/card_widget.dart';
 import 'package:foodapp/src/ui/home_page_custom_shape.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   TabController _tabController;
   PageController _pageController;
+  GoogleMapController _mapController;
   int _tabbarIndex = 0;
   String _selectedLocation = "Istanbul, TR";
 
@@ -78,19 +80,116 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
               Container(
                 width: _media.width,
                 height: _media.height,
-                child: SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  child: Stack(
-                    children: <Widget>[
-                      SingleChildScrollView(
-                        child: Column(
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      height: _media.height,
+                      width: double.infinity,
+                      child: GoogleMap(
+                        compassEnabled: true,
+                        initialCameraPosition: CameraPosition(
+                            bearing: 10,
+                            zoom: 15,
+                            target:
+                                LatLng(41.054501963290505, 28.899536132812504)),
+                        onMapCreated: (controller) {
+                          setState(() {
+                            _mapController = controller;
+                          });
+                        },
+                      ),
+                    ),
+                    Container(
+                      child: Positioned(
+                        width: _media.width,
+                        height: 280,
+                        bottom: 0,
+                        child: ListView(
+                          physics: BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
                           children: <Widget>[
-                            buildHeaderStack(_media),
+                            GestureDetector(
+                              onTap: () {
+                                _mapController == null
+                                    ? null
+                                    : _mapController.addMarker(
+                                        MarkerOptions(
+                                          draggable: true,
+                                          position: LatLng(
+                                            41.08738144641038,
+                                            28.788369297981262,
+                                          ),
+                                          infoWindowText: InfoWindowText(
+                                              "Deneme Restaurant", "Good food"),
+                                        ),
+                                      );
+                                _mapController.animateCamera(
+                                  CameraUpdate.newCameraPosition(
+                                    CameraPosition(
+                                      target: LatLng(
+                                        41.08738144641038,
+                                        28.788369297981262,
+                                      ),
+                                      zoom: 15.0,
+                                      tilt: 60.0,
+                                      bearing: 160,
+                                    ),
+                                  ),
+                                );
+                                print("tpped");
+                              },
+                              child: CardListWidget(
+                                foodDetail: "Desert - Fast Food - Alcohol",
+                                foodName: "Cafe De Perks",
+                                vote: 4.5,
+                                foodTime: "15-30 min",
+                                image: AppImages.image1[0],
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                _mapController == null
+                                    ? null
+                                    : _mapController.addMarker(
+                                        MarkerOptions(
+                                          draggable: true,
+                                          position: LatLng(
+                                            41.05612003462361,
+                                            28.72148036956787,
+                                          ),
+                                          infoWindowText: InfoWindowText(
+                                              "Deneme Restaurant", "Good food"),
+                                        ),
+                                      );
+                                _mapController.animateCamera(
+                                  CameraUpdate.newCameraPosition(
+                                    CameraPosition(
+                                      target: LatLng(
+                                        41.05612003462361,
+                                        28.72148036956787,
+                                      ),
+                                      zoom: 15.0,
+                                      tilt: 80.0,
+                                      bearing: 160,
+                                    ),
+                                  ),
+                                );
+                                print("tpped");
+                              },
+                              child: CardListWidget(
+                                foodDetail: "Desert - Fast Food - Alcohol",
+                                foodName: "Cafe De Istanbul",
+                                vote: 4.5,
+                                foodTime: "15-60 min",
+                                image: AppImages.image1[1],
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    buildHeaderStack(_media),
+                  ],
                 ),
               ),
             ],
@@ -248,7 +347,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           CardMoreWidget(
             image: AppImages.image1[1],
             foodDetail: "Desert - Fast Food - Alcohol",
-            foodName: "Cafe De Perks",
+            foodName: "Cafe De Ankara",
             vote: 4.5,
             foodTime: "15-30 min",
             status: "CLOSE",
@@ -257,7 +356,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           CardMoreWidget(
             image: AppImages.image1[0],
             foodDetail: "Desert - Fast Food - Alcohol",
-            foodName: "Cafe De Perks",
+            foodName: "Cafe De NewYork",
             vote: 4.5,
             foodTime: "15-30 min",
             status: "OPEN",
