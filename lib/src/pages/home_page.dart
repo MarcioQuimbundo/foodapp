@@ -22,6 +22,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   GoogleMapController _mapController;
   int _tabbarIndex = 0;
   String _selectedLocation = "Istanbul, TR";
+  bool selectedColor = true;
 
   List<String> _location = ["Newyork, NY", "Dubai", "Istanbul, TR"];
   @override
@@ -439,12 +440,19 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 onTap: () {
                   if (_pageController.page.abs() != 0) {
                     _pageController.jumpToPage(0);
+                    setState(() {
+                      selectedColor = true;
+                    });
+                  } else {
+                    selectedColor = false;
                   }
                 },
                 child: Text(
                   "List View",
                   style: TextStyle(
-                    color: AppColors.orangeColor,
+                    color: selectedColor
+                        ? AppColors.orangeColor
+                        : AppColors.greyColor,
                     fontWeight: FontWeight.w400,
                     fontSize: 16,
                     fontFamily: "Poppins",
@@ -460,12 +468,21 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
               GestureDetector(
                 onTap: () {
-                  _pageController.jumpToPage(1);
+                  if (_pageController.page.abs() != 1) {
+                    _pageController.jumpToPage(1);
+                    setState(() {
+                      selectedColor = false;
+                    });
+                  } else {
+                    selectedColor = true;
+                  }
                 },
                 child: Text(
                   "Map View",
                   style: TextStyle(
-                    color: AppColors.greyColor,
+                    color: selectedColor
+                        ? AppColors.greyColor
+                        : AppColors.orangeColor,
                     fontWeight: FontWeight.w400,
                     fontSize: 16,
                     fontFamily: "Poppins",
