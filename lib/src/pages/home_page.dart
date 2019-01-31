@@ -7,7 +7,9 @@ import 'package:foodapp/src/constant/images.dart';
 import 'package:foodapp/src/ui/card_more_widget.dart';
 import 'package:foodapp/src/ui/card_widget.dart';
 import 'package:foodapp/src/ui/home_page_custom_shape.dart';
+import 'package:foodapp/src/ui/likebutton/LikeButton.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,16 +19,25 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TabController _tabController;
   PageController _pageController;
   GoogleMapController _mapController;
   int _tabbarIndex = 0;
   String _selectedLocation = "Istanbul, TR";
   bool selectedColor = true;
+  var currentLocation;
+  bool showMaps = false;
 
   List<String> _location = ["Newyork, NY", "Dubai", "Istanbul, TR"];
   @override
   void initState() {
+    Geolocator().getCurrentPosition().then((current) {
+      setState(() {
+        currentLocation = current;
+        showMaps = true;
+      });
+    });
     _pageController = PageController(
       initialPage: 0,
       keepPage: true,
@@ -39,6 +50,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void dispose() {
     _tabController.dispose();
+    _pageController.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -46,9 +59,72 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final _media = MediaQuery.of(context).size;
     return Scaffold(
+      key: _scaffoldKey,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: buildFloatingActionButton(),
       bottomNavigationBar: buildBottomNavigationBar(),
+      endDrawer: Stack(
+        children: <Widget>[
+          Theme(
+            data: ThemeData(canvasColor: Colors.transparent),
+            child: Container(
+              width: 80,
+              height: 150,
+              child: Drawer(
+                elevation: 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.orangeColor,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                        ),
+                      ),
+                      width: 80,
+                      height: 75,
+                      child: Icon(
+                        Icons.shopping_cart,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.orangeLightColor,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(10),
+                        ),
+                      ),
+                      height: 75,
+                      width: 80,
+                      child: Icon(
+                        Icons.contact_phone,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 42,
+            top: -10,
+            child: IconButton(
+              icon: Icon(
+                Icons.close,
+                color: Colors.white,
+                size: 16,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
+      ),
       body: PageView(
         controller: _pageController,
         physics: NeverScrollableScrollPhysics(),
@@ -86,19 +162,22 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     Container(
                       height: _media.height,
                       width: double.infinity,
-                      child: GoogleMap(
-                        compassEnabled: true,
-                        initialCameraPosition: CameraPosition(
-                            bearing: 10,
-                            zoom: 15,
-                            target:
-                                LatLng(41.054501963290505, 28.899536132812504)),
-                        onMapCreated: (controller) {
-                          setState(() {
-                            _mapController = controller;
-                          });
-                        },
-                      ),
+                      child: showMaps
+                          ? GoogleMap(
+                              compassEnabled: true,
+                              initialCameraPosition: CameraPosition(
+                                bearing: 10,
+                                zoom: 15,
+                                target: LatLng(currentLocation.latitude,
+                                    currentLocation.longitude),
+                              ),
+                              onMapCreated: (controller) {
+                                setState(() {
+                                  _mapController = controller;
+                                });
+                              },
+                            )
+                          : Container(),
                     ),
                     Container(
                       child: Positioned(
@@ -115,13 +194,19 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     ? null
                                     : _mapController.addMarker(
                                         MarkerOptions(
+                                          icon: BitmapDescriptor
+                                              .defaultMarkerWithHue(
+                                            BitmapDescriptor.hueOrange,
+                                          ),
                                           draggable: true,
                                           position: LatLng(
                                             41.08738144641038,
                                             28.788369297981262,
                                           ),
                                           infoWindowText: InfoWindowText(
-                                              "Deneme Restaurant", "Good food"),
+                                            "Cafe De Perks",
+                                            "Good food",
+                                          ),
                                         ),
                                       );
                                 _mapController.animateCamera(
@@ -139,12 +224,17 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 );
                                 print("tpped");
                               },
-                              child: CardListWidget(
-                                foodDetail: "Desert - Fast Food - Alcohol",
-                                foodName: "Cafe De Perks",
-                                vote: 4.5,
-                                foodTime: "15-30 min",
-                                image: AppImages.image1[0],
+                              child: Container(
+                                child: CardListWidget(
+                                  heartIcon: LikeButton(
+                                    width: 70,
+                                  ),
+                                  foodDetail: "Desert - Fast Food - Alcohol",
+                                  foodName: "Cafe De Perks",
+                                  vote: 4.5,
+                                  foodTime: "15-30 min",
+                                  image: AppImages.image1[0],
+                                ),
                               ),
                             ),
                             GestureDetector(
@@ -153,13 +243,17 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     ? null
                                     : _mapController.addMarker(
                                         MarkerOptions(
+                                          icon: BitmapDescriptor
+                                              .defaultMarkerWithHue(
+                                            BitmapDescriptor.hueOrange,
+                                          ),
                                           draggable: true,
                                           position: LatLng(
                                             41.05612003462361,
                                             28.72148036956787,
                                           ),
                                           infoWindowText: InfoWindowText(
-                                              "Deneme Restaurant", "Good food"),
+                                              "Cafe De Istanbul", "Good food"),
                                         ),
                                       );
                                 _mapController.animateCamera(
@@ -178,6 +272,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 print("tpped");
                               },
                               child: CardListWidget(
+                                heartIcon: LikeButton(
+                                  width: 70,
+                                ),
                                 foodDetail: "Desert - Fast Food - Alcohol",
                                 foodName: "Cafe De Istanbul",
                                 vote: 4.5,
@@ -281,7 +378,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   size: 28,
                   color: Colors.white,
                 ),
-                onPressed: () => print("clicked button"),
+                onPressed: () => _scaffoldKey.currentState.openEndDrawer(),
               ),
             ],
           ),
@@ -299,7 +396,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.only(left: 22.0, bottom: 10),
             child: Text(
-              "Featured Restaurants",
+              "Featured Restaurants in $_selectedLocation",
               style: TextStyle(
                 color: AppColors.blackColor,
                 fontSize: 18,
@@ -314,18 +411,29 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             ),
             child: Container(
               height: 280,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: AppImages.image1.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return CardListWidget(
-                    image: AppImages.image1[index],
-                    foodDetail: "Desert - Fast Food - Alcohol",
-                    foodName: "Cafe De Perks",
-                    vote: 4.5,
-                    foodTime: "15-30 min",
-                  );
+              child: NotificationListener(
+                onNotification: (overscroll) {
+                  overscroll.disallowGlow();
                 },
+                child: ListView.builder(
+                  padding: EdgeInsets.only(right: 20),
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(),
+                  itemCount: AppImages.image1.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return CardListWidget(
+                      heartIcon: LikeButton(
+                        key: ObjectKey(index.toString()),
+                        width: 70,
+                      ),
+                      image: AppImages.image1[index],
+                      foodDetail: "Desert - Fast Food - Alcohol",
+                      foodName: "Cafe De Perks",
+                      vote: 4.5,
+                      foodTime: "15-30 min",
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -336,7 +444,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.only(top: 20, left: 22.0, bottom: 10),
             child: Text(
-              "More Restaurants",
+              "More Restaurants in $_selectedLocation",
               style: TextStyle(
                 color: AppColors.blackColor,
                 fontSize: 18,
@@ -353,8 +461,14 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
             foodTime: "15-30 min",
             status: "CLOSE",
             statusColor: Colors.pinkAccent,
+            heartIcon: LikeButton(
+              width: 70,
+            ),
           ),
           CardMoreWidget(
+            heartIcon: LikeButton(
+              width: 70,
+            ),
             image: AppImages.image1[0],
             foodDetail: "Desert - Fast Food - Alcohol",
             foodName: "Cafe De NewYork",
@@ -368,16 +482,35 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  FloatingActionButton buildFloatingActionButton() {
-    return FloatingActionButton(
-      elevation: 10,
-      backgroundColor: AppColors.orangeColor,
-      onPressed: () => null,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 10.0),
+  Widget buildFloatingActionButton() {
+    return GestureDetector(
+      onTap: () {
+        print("Icon tapped");
+      },
+      child: Container(
+        padding: EdgeInsets.only(bottom: 12),
+        height: 55,
+        width: 55,
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.orangeColor,
+                AppColors.orangeLightColor.withOpacity(0.8),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: [
+              BoxShadow(
+                  color: AppColors.orangeColor,
+                  blurRadius: 12,
+                  offset: Offset(0, 5)),
+            ]),
         child: Icon(
           IconData(0xe800, fontFamily: "Icons"),
           size: 32,
+          color: Colors.white,
         ),
       ),
     );

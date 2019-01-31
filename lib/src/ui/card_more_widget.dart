@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_advanced_networkimage/provider.dart';
+import 'package:flutter_advanced_networkimage/transition.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:foodapp/src/constant/colors.dart';
 import 'package:foodapp/src/ui/card_more_shape.dart';
@@ -13,6 +15,7 @@ class CardMoreWidget extends StatefulWidget {
   final String status;
   final Color statusColor;
   final double vote;
+  final Widget heartIcon;
   CardMoreWidget(
       {this.image,
       this.foodDetail,
@@ -20,6 +23,7 @@ class CardMoreWidget extends StatefulWidget {
       this.vote,
       this.foodTime,
       this.status,
+      this.heartIcon,
       this.statusColor});
 
   @override
@@ -66,14 +70,21 @@ class CardMoreWidgetState extends State<CardMoreWidget> {
                   children: <Widget>[
                     Container(
                       decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(widget.image),
-                          fit: BoxFit.cover,
-                        ),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),
                         ),
+                      ),
+                      child: TransitionToImage(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10)),
+                        image: AdvancedNetworkImage(
+                          widget.image,
+                          useDiskCache: true,
+                        ),
+                        fit: BoxFit.cover,
+                        placeholder: const Icon(Icons.refresh),
                       ),
                     ),
                     Positioned(
@@ -86,21 +97,13 @@ class CardMoreWidgetState extends State<CardMoreWidget> {
                           shape: BoxShape.circle,
                           color: Colors.lightGreen,
                         ),
-                        child: IconButton(
-                          onPressed: _toggleHeart,
-                          icon: Icon(
-                            _isSolid
-                                ? FontAwesomeIcons.solidHeart
-                                : FontAwesomeIcons.heart,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child: widget.heartIcon,
                       ),
                     ),
                     Positioned(
                       bottom: 0,
                       left: 0,
-                      width: MediaQuery.of(context).size.width - 80,
+                      width: MediaQuery.of(context).size.width,
                       height: 40,
                       child: Container(
                         padding: EdgeInsets.only(left: 10),
@@ -115,9 +118,10 @@ class CardMoreWidgetState extends State<CardMoreWidget> {
                           ),
                         ),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: <Widget>[
                             Expanded(
-                              flex: 5,
+                              flex: 4,
                               child: Row(
                                 children: <Widget>[
                                   Container(
@@ -179,8 +183,7 @@ class CardMoreWidgetState extends State<CardMoreWidget> {
                             Expanded(
                               flex: 2,
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
+                                mainAxisAlignment: MainAxisAlignment.start,
                                 children: <Widget>[
                                   Icon(
                                     FontAwesomeIcons.clock,

@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:foodapp/src/constant/colors.dart';
+import 'package:flutter_advanced_networkimage/provider.dart';
+import 'package:flutter_advanced_networkimage/transition.dart';
 
 class CardListWidget extends StatefulWidget {
   final String image;
   final String foodName;
   final String foodDetail;
   final String foodTime;
+  final Widget heartIcon;
   final double vote;
   CardListWidget(
-      {this.image, this.foodDetail, this.foodName, this.vote, this.foodTime});
+      {this.image,
+      this.foodDetail,
+      this.foodName,
+      this.vote,
+      this.foodTime,
+      this.heartIcon});
 
   @override
   CardListWidgetState createState() {
@@ -53,14 +61,21 @@ class CardListWidgetState extends State<CardListWidget> {
                   children: <Widget>[
                     Container(
                       decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage(widget.image),
-                          fit: BoxFit.cover,
-                        ),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(10),
                           topRight: Radius.circular(10),
                         ),
+                      ),
+                      child: TransitionToImage(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10)),
+                        image: AdvancedNetworkImage(
+                          widget.image,
+                          useDiskCache: true,
+                        ),
+                        fit: BoxFit.cover,
+                        placeholder: const Icon(Icons.refresh),
                       ),
                     ),
                     Positioned(
@@ -73,15 +88,7 @@ class CardListWidgetState extends State<CardListWidget> {
                           shape: BoxShape.circle,
                           color: Colors.lightGreen,
                         ),
-                        child: IconButton(
-                          onPressed: _toggleHeart,
-                          icon: Icon(
-                            _isSolid
-                                ? FontAwesomeIcons.solidHeart
-                                : FontAwesomeIcons.heart,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child: widget.heartIcon,
                       ),
                     ),
                     Positioned(
